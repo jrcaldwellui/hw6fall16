@@ -14,6 +14,16 @@ describe MoviesController do
       post :search_tmdb, {:search_terms => 'Ted'}
       expect(response).to render_template('search_tmdb')
     end  
+    it 'should redirect to index for nil search' do
+      allow(Movie).to receive(:find_in_tmdb)
+      post :search_tmdb, {:search_terms => nil}
+      expect(response).to redirect_to(movies_path)
+    end 
+     it 'should redirect to index for invalid search' do
+      allow(Movie).to receive(:find_in_tmdb)
+      post :search_tmdb, {:search_terms => '   '}
+      expect(response).to redirect_to(movies_path)
+    end 
     it 'should make the TMDb search results available to that template' do
       fake_results = [double('Movie'), double('Movie')]
       allow(Movie).to receive(:find_in_tmdb).and_return (fake_results)

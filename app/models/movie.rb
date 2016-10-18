@@ -28,9 +28,9 @@ class Movie < ActiveRecord::Base
   def self.create_from_tmdb (tmdb_id)
       rating = get_rating_from_tmbd_id(tmdb_id)
       movie = Tmdb::Movie.detail(tmdb_id)
-      puts(movie)
       dbMovie = Movie.new({:title=>movie["title"], :release_date => movie["release_date"], :rating => rating})
       dbMovie.save
+      
   end
   
   #param tmdb_id

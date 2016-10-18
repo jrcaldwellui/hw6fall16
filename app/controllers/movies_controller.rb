@@ -63,25 +63,27 @@ class MoviesController < ApplicationController
   
   def search_tmdb
 
-    if(params[:TMDb].nil? || /^\s+$/.match(params[:TMDb][:search_terms]) )
+    if(params[:TMDb][:search_terms].nil? || /^\s*$/.match(params[:TMDb][:search_terms]) || params[:TMDb][:search_terms].empty?  )
       flash[:notice] = "Invalid search term"
       redirect_to movies_path
+    else
+      search_terms = params[:TMDb][:search_terms]
+      @movies=Movie.find_in_tmdb(search_terms)
+      if(@movies.empty?)
+        flash[:notice] = "No matching movies were found on TMDb"
+        redirect_to movies_path
+      end
+      @current_search_term = search_terms
     end
-    search_terms = params[:TMDb][:search_terms]
-    print("Search Term: ")
-    puts(search_terms)
-    @movies=Movie.find_in_tmdb(search_terms)
-    if(@movies.empty?)
-      flash[:notice] = "No matching movies were found on TMDb"
-      redirect_to movies_path
-    end
-    @current_search_term = search_terms
   end
   
   def add_tmdb
-    tmdb_ids = params[:tmdb_movies].keys
-    tmdb_ids.each do |id|
-      Movie.create_from_tmdb(id)
+    movie_ids = params.keys
+    movie_ids.each do |paramKey|
+      if(/^checkbox_\d+$/.match(paramKey))
+        Movie.create_from_tmdb(params[paramKey])
+        
+      end
     end
     flash[:notice] = "Movies successfully added to Rotten Potatoes"
     redirect_to movies_path
